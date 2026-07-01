@@ -1,14 +1,11 @@
-import AppFooter from './components/layout/AppFooter'
-import AppHeader from './components/layout/AppHeader'
+import AppLayout from './components/layout/AppLayout'
 import HomePage from './pages/HomePage'
 
 function App() {
     return (
-        <>
-            <AppHeader />
+        <AppLayout>
             <HomePage />
-            <AppFooter />
-        </>
+        </AppLayout>
     )
 }
 

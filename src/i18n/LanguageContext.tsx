@@ -15,8 +15,34 @@ type LanguageContextValue = {
     translate: (key: MessageKey) => string
 }
 
-// Spanish is the default language for the application.
-const defaultLocale: LocaleCode = 'es'
+// Spanish is used only as a fallback when the browser language is not supported.
+const fallbackLocale: LocaleCode = 'es'
+
+// This key is used to save the selected language in the browser.
+const localeStorageKey = 'poika-locale'
+
+// This function checks if a language code exists in the available locales.
+function isSupportedLocale(locale: string): locale is LocaleCode {
+    return locale in locales
+}
+
+// This function tries to detect the browser language.
+// Example: "en-US" becomes "en".
+function getBrowserLocale(): LocaleCode {
+    const browserLanguages = navigator.languages.length
+        ? navigator.languages
+        : [navigator.language]
+
+    for (const language of browserLanguages) {
+        const normalizedLanguage = language.toLowerCase().split('-')[0]
+
+        if (isSupportedLocale(normalizedLanguage)) {
+            return normalizedLanguage
+        }
+    }
+
+    return fallbackLocale
+}
 
 // The context starts as null because it will receive its real value inside the provider.
 const LanguageContext = createContext<LanguageContextValue | null>(null)
@@ -27,20 +53,21 @@ type LanguageProviderProps = {
 
 export function LanguageProvider({ children }: LanguageProviderProps) {
     // The active language is stored in state.
-    // If the user already selected a language before, it is loaded from localStorage.
+    // First, it tries to load the saved language from localStorage.
+    // If there is no saved language, it uses the browser language.
     const [locale, setLocale] = useState<LocaleCode>(() => {
-        const savedLocale = localStorage.getItem('poika-locale')
+        const savedLocale = localStorage.getItem(localeStorageKey)
 
-        if (savedLocale && savedLocale in locales) {
-            return savedLocale as LocaleCode
+        if (savedLocale && isSupportedLocale(savedLocale)) {
+            return savedLocale
         }
 
-        return defaultLocale
+        return getBrowserLocale()
     })
 
     // Every time the selected language changes, it is saved in localStorage.
     useEffect(() => {
-        localStorage.setItem('poika-locale', locale)
+        localStorage.setItem(localeStorageKey, locale)
     }, [locale])
 
     // This function receives a message key and returns the text in the active language.

@@ -1,16 +1,25 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-
-import App from './App.tsx'
+import { BrowserRouter } from 'react-router'
+import App from './App'
 import { LanguageProvider } from './i18n/LanguageContext'
 import './index.css'
 
-// React renders the application inside the HTML element with the id "root".
-// LanguageProvider makes the selected language available to the whole app.
-createRoot(document.getElementById('root')!).render(
+// Find the HTML element where React will render the application.
+const rootElement = document.getElementById('root')
+
+if (!rootElement) {
+    throw new Error('Root element was not found')
+}
+
+createRoot(rootElement).render(
     <StrictMode>
-        <LanguageProvider>
-            <App />
-        </LanguageProvider>
+        {/* Enable client-side routing for the entire application. */}
+        <BrowserRouter>
+            {/* Make the selected language available to every component. */}
+            <LanguageProvider>
+                <App />
+            </LanguageProvider>
+        </BrowserRouter>
     </StrictMode>,
 )
